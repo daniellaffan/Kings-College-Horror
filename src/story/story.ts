@@ -31,7 +31,7 @@ const bg = (p: Promise<unknown>) => void p.catch(() => undefined);
 
 const STUDENTS = ['studentA', 'studentB', 'studentC', 'studentD'];
 const WALKWAY = [W(-20, -11.4), W(-8, -12), W(4, -11.2), W(16, -12.1), W(28, -11.5)];
-const PENALTY_SPOT = W(-149, -53.5);
+const PENALTY_SPOT = W(-80, -53.5);
 const LAB_SEAT = W(57.4, 31.7);
 
 const NOTES: { id: string; at: THREE.Vector3; title: string; body: string }[] = [
@@ -735,7 +735,7 @@ export class Story {
     });
 
     // Theo on the pitch.
-    g.place('theo', W(-146, -50), PENALTY_SPOT);
+    g.place('theo', W(-83, -50), PENALTY_SPOT);
     this.npc('theo', 'Talk to Theo', () => this.theo(loop));
 
     // Mrs. Ferguson behind the library desk.
@@ -883,16 +883,16 @@ export class Story {
     const p = g.player;
     p.frozen = true;
     await g.ui.fade(1, 0.35);
-    this.placePlayer(W(-146.4, -53.5), Math.PI / 2);
+    this.placePlayer(W(-82.6, -53.5), -Math.PI / 2);
     this.ball.position.copy(PENALTY_SPOT).setY(0.11);
-    g.place('theo', W(-147, -49.5), PENALTY_SPOT);
+    g.place('theo', W(-82, -49.5), PENALTY_SPOT);
     await g.ui.fade(0, 0.35);
     const aim = await g.choose('', 'Where are you putting it?', ['Bottom left', 'Top corner', 'Bottom right']);
     g.endTalk();
     p.frozen = true;
     await g.runner.wait(0.3);
     audio.footstep('grass', 2.4);
-    const to = [W(-160.6, -55.9, 0.3), W(-160.6, -51.6, 2.0), W(-160.6, -51.1, 0.3)][aim];
+    const to = [W(-68.4, -51.1, 0.3), W(-68.4, -55.4, 2.0), W(-68.4, -55.9, 0.3)][aim];
     this.ballFlight = { from: this.ball.position.clone(), to, t: 0 };
     await g.runner.wait(0.7);
     this.ball.position.y = 0.11;
