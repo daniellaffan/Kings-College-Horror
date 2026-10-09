@@ -130,5 +130,6 @@ input[type=range] { width: 180px; }
 /* Act III: the RPG shell falls away. */
 #hud.minimal .stats, #hud.minimal .chips { display: none; }
 /* Cards, death and credits sit above the black fade. */
+#settings { z-index: 4; }
 #fade { z-index: 5; }
 #card, #death, #credits, #fake { z-index: 6; }
