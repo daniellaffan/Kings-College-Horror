@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
-import { polygonGeometry } from '../src/world/builder';
+import { Builder, polygonGeometry } from '../src/world/builder';
+import { CollisionWorld } from '../src/world/collision';
 import type { Vec2 } from '../src/world/geo';
 
 const L: Vec2[] = [
@@ -44,5 +45,18 @@ describe('polygonGeometry', () => {
     expect(g.boundingBox!.min.z).toBeCloseTo(-9);
     expect(g.boundingBox!.max.z).toBeCloseTo(0);
     expect(g.boundingBox!.min.y).toBeCloseTo(3.2);
+  });
+});
+
+describe('Builder.wall', () => {
+  it('keeps a doorway walkable when an upper storey wall sits above it', () => {
+    const world = new CollisionWorld();
+    const b = new Builder(world);
+    const mat = new THREE.MeshBasicMaterial();
+    const common = { height: 3.8, inner: mat, outer: mat, outerSide: 1 as const, thickness: 0.3 };
+    b.wall('v', 0, 0, 10, { ...common, openings: [{ at: 5, width: 2.4, top: 2.3 }] });
+    b.wall('v', 0, 0, 10, { ...common, y0: 3.8, openings: [{ at: 5, width: 2, bottom: 0.9, top: 2.6, glass: true }] });
+    expect(world.blocked(5, 0, 0.3)).toBe(false);
+    expect(world.blocked(2, 0, 0.3)).toBe(true);
   });
 });

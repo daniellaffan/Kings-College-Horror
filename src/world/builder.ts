@@ -231,7 +231,8 @@ export class Builder {
         this.doorFrame(axis, fixed, s0, s1, y0, y0 + top, t);
       }
       // Windows block movement; doors don't.
-      if (op.glass) this.collider(axis, fixed, s0, s1, t, y0 + top, o.tag);
+      // Upper storeys sit on the ground wall; their colliders would seal the doorways below.
+      if (op.glass && y0 === 0) this.collider(axis, fixed, s0, s1, t, y0 + top, o.tag);
       cursor = s1;
     }
     rects.push({ s0: cursor, s1: b, y0, y1: y0 + H, solid: true });
@@ -247,7 +248,7 @@ export class Builder {
       } else {
         this.wallBox(axis, fixed, r.s0, r.s1, r.y0, r.y1, t, o.inner, tile);
       }
-      if (r.solid && r.y0 === y0 && r.y1 - r.y0 > 1.5) this.collider(axis, fixed, r.s0, r.s1, t, r.y1, o.tag);
+      if (y0 === 0 && r.solid && r.y0 === y0 && r.y1 - r.y0 > 1.5) this.collider(axis, fixed, r.s0, r.s1, t, r.y1, o.tag);
       if (o.skirting && r.y0 === y0 && r.y1 - r.y0 > 1.5) {
         for (const side of o.outer && o.outerSide ? [-o.outerSide] : [1, -1]) {
           this.wallBox(axis, fixed + side * (t / 2 + 0.005), r.s0, r.s1, y0, y0 + 0.1, 0.012, this.skirtingMat, 1);
