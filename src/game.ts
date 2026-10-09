@@ -361,7 +361,7 @@ export class Game {
   private handleKeys() {
     const inp = this.input;
     if (inp.hit('Tab') && !this.ui.busy) this.ui.toggleJournal(this.rpg);
-    if (!this.ui.busy && !this.ui.journalOpen && !this.ui.paused && this.focus && !this.interacting && inp.hit('KeyE')) {
+    if (!this.ui.busy && !this.ui.journalOpen && !this.ui.paused && this.focus && !this.interacting && inp.hit('KeyE') && performance.now() - this.ui.endedAt > 250) {
       const f = this.focus;
       this.interacting = true;
       this.ui.prompt(null);

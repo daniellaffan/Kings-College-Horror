@@ -472,7 +472,11 @@ export class UI {
     });
   }
 
+  /** When the last dialogue closed; the key press that closed it must not also start a new one. */
+  endedAt = 0;
+
   endDialogue() {
+    this.endedAt = performance.now();
     this.dialogueEl.classList.remove('on');
     this.busy = false;
     this.advance = undefined;
