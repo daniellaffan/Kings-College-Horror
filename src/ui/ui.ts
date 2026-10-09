@@ -339,11 +339,21 @@ export class UI {
       ]) c.fillRect(x, y, w, hh);
       c.globalAlpha = 1;
     }
+    // Quest ring goes on top of the NPC dots so the one it points at stays visible inside it.
     for (const m of markers) {
-      c.fillStyle = m.kind === 'quest' ? '#f2c200' : m.kind === 'lie' ? '#2a7fc4' : '#ffffff';
+      if (m.kind === 'quest') continue;
+      c.fillStyle = m.kind === 'lie' ? '#2a7fc4' : '#ffffff';
       c.beginPath();
-      c.arc(m.u, m.v, m.kind === 'quest' ? 3 : 1.6, 0, Math.PI * 2);
+      c.arc(m.u, m.v, 1.6, 0, Math.PI * 2);
       c.fill();
+    }
+    for (const m of markers) {
+      if (m.kind !== 'quest') continue;
+      c.strokeStyle = '#f2c200';
+      c.lineWidth = 1.2;
+      c.beginPath();
+      c.arc(m.u, m.v, 3.4, 0, Math.PI * 2);
+      c.stroke();
     }
     c.restore();
     // Player arrow.

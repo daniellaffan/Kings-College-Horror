@@ -5,7 +5,7 @@ import type { QuestDef } from './state';
 export const QUESTS: Record<string, QuestDef> = {
   formRoom: { id: 'formRoom', title: 'First Day!', objective: 'Find Form Room 12 in the Academic Block', xp: 40, stat: ['wits', 1], target: 'formRoom' },
   library: { id: 'library', title: 'Overdue', objective: 'Return The Tempest to the library desk', xp: 35, stat: ['wits', 1], target: 'libraryDesk' },
-  trials: { id: 'trials', title: 'Football Trials', objective: 'Meet Theo on the 5G pitch and take a penalty', xp: 50, stat: ['grit', 2], target: 'pitchTouchline' },
+  trials: { id: 'trials', title: 'Football Trials', objective: 'Meet Theo on the 5G pitch and take a penalty', xp: 50, stat: ['grit', 2], target: 'theo' },
   smoothie: { id: 'smoothie', title: 'Tide Café', objective: 'Grab a smoothie from the café in the dining hall', xp: 25, stat: ['charm', 1], target: 'cafeCounter' },
   friend: { id: 'friend', title: 'Make a Friend', objective: 'Hang out with Amara (talk to her 3 times)', xp: 60, stat: ['charm', 2], target: 'amara' },
   chemistry: { id: 'chemistry', title: 'Chemistry', objective: "Go to Ms. Fairweather's lesson in the Chemistry Lab", xp: 45, stat: ['wits', 2], target: 'lab1Front' },
