@@ -1,0 +1,26 @@
+{
+  "source": "Poly Haven (CC0) — https://polyhaven.com",
+  "hdri": {
+    "day": "qwantani_noon_puresky",
+    "overcast": "kloofendal_overcast_puresky",
+    "dusk": "qwantani_dusk_2_puresky",
+    "night": "kloppenheim_07_puresky"
+  },
+  "materials": {
+    "stucco": "white_stucco",
+    "plaster": "painted_plaster_wall",
+    "corridorFloor": "long_white_tiles",
+    "classFloor": "laminate_floor_02",
+    "terrazzo": "terrazzo_tiles",
+    "ceiling": "ceiling_interior",
+    "asphalt": "asphalt_02",
+    "grass": "leafy_grass",
+    "track": "rubberized_track",
+    "paving": "patio_tiles",
+    "poolTile": "rounded_square_tiled_wall",
+    "rust": "rusty_metal_02",
+    "concrete": "concrete_floor_painted",
+    "forestFloor": "forrest_ground_01",
+    "wood": "white_oak_veneer"
+  }
+}
