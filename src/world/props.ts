@@ -30,6 +30,8 @@ export function makeMats() {
     turfStripe: assets.material('grass', { color: 0x7fbf5c, noArm: true, roughness: 0.85 }),
     greyPanel: std(0x8e9296, 0.75),
     greyTrim: std(0xc9c9c4, 0.8),
+    roofGrey: std(0x9d9fa0, 0.85),
+    courtPale: assets.material('asphalt', { color: 0xc3cbc6, noArm: true, roughness: 0.75 }),
     track: assets.material('track'),
     paving: assets.material('paving', { color: 0xd8cfc4 }),
     wavePaving: new THREE.MeshStandardMaterial({ map: T.waveMosaicTexture(), roughness: 0.7 }),
@@ -379,4 +381,33 @@ export function streetLamp(b: Builder, m: Mats, lights: LightPool, u: number, v:
   b.box(u - 0.25, u + 0.25, v - 0.12, v + 0.12, 5.4, 5.55, m.darkMetal, { tile: 1 });
   b.box(u - 0.2, u + 0.2, v - 0.09, v + 0.09, 5.37, 5.4, lights.glow.street, { tile: 1, cast: false });
   lights.add({ pos: W(u, v, 5.2), color: new THREE.Color(0xffc98a), intensity: 60, group: 'street' });
+}
+
+/** Instanced broadleaf trees (the dense green belts round the campus in the architect's render). */
+export function broadleafGrove(scene: THREE.Object3D, m: Mats, spots: [number, number][]) {
+  const trunk = new THREE.CylinderGeometry(0.16, 0.26, 1, 6);
+  trunk.translate(0, 0.5, 0);
+  const crown = new THREE.IcosahedronGeometry(1, 1);
+  const tm = new THREE.InstancedMesh(trunk, m.bark, spots.length);
+  const cm = new THREE.InstancedMesh(crown, m.foliage, spots.length * 4);
+  const mtx = new THREE.Matrix4();
+  spots.forEach(([u, v], i) => {
+    const h = 3 + T.rand() * 3;
+    mtx.compose(W(u, v), new THREE.Quaternion(), new THREE.Vector3(1, h, 1));
+    tm.setMatrixAt(i, mtx);
+    const r = 2.2 + T.rand() * 1.8;
+    for (let k = 0; k < 4; k++) {
+      const a = (k / 4) * Math.PI * 2 + T.rand();
+      const s = r * (0.65 + T.rand() * 0.35);
+      mtx.compose(
+        W(u + (k ? Math.cos(a) * r * 0.55 : 0), v + (k ? Math.sin(a) * r * 0.55 : 0), h + r * 0.45 + (k ? -0.3 : 0.5)),
+        new THREE.Quaternion().setFromEuler(new THREE.Euler(T.rand(), T.rand() * 6, 0)),
+        new THREE.Vector3(s, s * 0.8, s),
+      );
+      cm.setMatrixAt(i * 4 + k, mtx);
+    }
+  });
+  tm.castShadow = cm.castShadow = true;
+  tm.receiveShadow = cm.receiveShadow = true;
+  scene.add(tm, cm);
 }

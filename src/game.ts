@@ -19,7 +19,7 @@ import { UI, type MapData, type Marker } from './ui/ui';
 import { buildAcademic, ACADEMIC_OUTLINE, ROOMS, type AcademicRefs, type HideSpot } from './world/academic';
 import { Atmosphere } from './world/atmosphere';
 import { Builder } from './world/builder';
-import { buildBuildings, PLANT_SHAFT, type BuildingRefs } from './world/buildings';
+import { buildBuildings, BOOTH, PLANT_SHAFT, type BuildingRefs } from './world/buildings';
 import { buildCampus, POOL, type CampusRefs } from './world/campus';
 import { CollisionWorld } from './world/collision';
 import { pointInPolygon, type CampusData, type Vec2 } from './world/geo';
@@ -135,16 +135,16 @@ export class Game {
       this.campus.outlines.dining,
       this.campus.outlines.plant,
       [
-        [-167.5, 3],
-        [-164.5, 3],
-        [-164.5, 6.5],
-        [-167.5, 6.5],
+        [BOOTH.u0, BOOTH.v0],
+        [BOOTH.u1, BOOTH.v0],
+        [BOOTH.u1, BOOTH.v1],
+        [BOOTH.u0, BOOTH.v1],
       ],
     ];
 
     this.atmo = new Atmosphere(this.r);
     const m = this.mats;
-    this.atmo.addWet(m.stucco, m.stuccoTint, m.asphalt, m.paving, m.wavePaving, m.cladding, m.concrete, m.grass, m.turf, m.track, m.hardCourt, m.padelCourt, m.forestFloor, m.roof);
+    this.atmo.addWet(m.stucco, m.stuccoTint, m.asphalt, m.paving, m.wavePaving, m.cladding, m.concrete, m.grass, m.turf, m.track, m.hardCourt, m.padelCourt, m.forestFloor, m.roof, m.turfStripe, m.courtPale, m.greyPanel, m.greyTrim, m.roofGrey);
     this.atmo.reduceFlashes = settings.reduceFlashes;
 
     this.player = new Player(this.r.camera, this.input, this.world);
@@ -166,8 +166,8 @@ export class Game {
       return 0;
     };
 
-    // Nav grid over the Academic Block, courtyard, east lawns and pool deck (the chase area).
-    this.nav = new NavGrid(15, -55, 95, 30, 0.5, this.world, 0.35);
+    // Nav grid over the Academic Block, the lane east of it, the back of the building and the pool deck (the chase area).
+    this.nav = new NavGrid(15, -55, 95, 45, 0.5, this.world, 0.35);
 
     for (const spec of Object.values(CAST)) this.addNPC(spec);
     this.hollowed = new Hollowed(this.npcs.sands, this.nav, this.world, this.player);
@@ -177,18 +177,7 @@ export class Game {
   }
 
   private mapData(): MapData {
-    const data = campusJson as unknown as CampusData;
-    const lines: MapData['lines'] = [];
-    const polys: MapData['polys'] = [];
-    for (const f of data.features) {
-      const pts = this.campus.local(f.points);
-      if (f.kind === 'road') lines.push({ pts, w: f.tags.highway === 'footway' ? 2 : f.tags.highway === 'track' ? 2 : 5, color: f.tags.highway === 'footway' ? '#d8cfbf' : '#5a5a5c' });
-      else if (f.kind === 'pitch' || f.kind === 'track') polys.push({ pts, fill: '#8fcf6a' });
-      else if (f.kind === 'pool') polys.push({ pts, fill: '#4fb3e0' });
-    }
-    for (const t of data.features.filter((f) => f.kind === 'track')) lines.push({ pts: this.campus.local(t.points), w: 7, color: '#b5523f' });
-    for (const o of [ACADEMIC_OUTLINE, this.campus.outlines.arts, this.campus.outlines.dining, this.campus.outlines.plant]) polys.push({ pts: o, fill: '#f4f1ea' });
-    return { lines, polys };
+    return this.campus.map;
   }
 
   addNPC(spec: CharacterSpec) {

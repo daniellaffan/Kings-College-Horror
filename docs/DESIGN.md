@@ -31,6 +31,8 @@ The user chose:
 
 The surroundings come from OSM too: Mount Pleasant Village to the east, forest (`landuse=forest`, way 815703975) to the south and west, and Lyford Cay to the north.
 
+**Grounds layout (current build):** the grounds now follow the architect's aerial render rather than the OSM sports features. The plan is symmetric about one axis (u = 43.1). The gate and a palm-median drive with angled parking lead to a forecourt with a semicircular island. Two porte-cochères frame the front beds. The Academic Block sits under a long pale spine roof between two-storey wings with courtyards. Behind it are pergolas, grey classroom pavilions, the 25 m pool on the axis, pale tennis courts and a pool house. The Academic Block, dining hall and plant room keep their OSM footprints. The arts block, five-a-side cages, sprint track and padel courts are gone, and the gate booth moved to the new front gate.
+
 **Facilities named by the school and Inspired** (used to furnish the interiors):
 - science labs and library
 - drama studio, dance studio, music rooms

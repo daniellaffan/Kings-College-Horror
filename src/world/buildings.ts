@@ -14,6 +14,8 @@ import { buildShell } from './shell';
 import * as T from './textures';
 import type { HideSpot } from './academic';
 
+/** Gate security booth (local frame), just inside the main gate. */
+export const BOOTH = { u0: 60, u1: 63, v0: 170, v1: 173.5 };
 export const PLANT_SHAFT = { u0: -27.5, u1: -24.5, v0: -72.6, v1: -67.6, depth: 5 };
 
 export interface BuildingRefs {
@@ -31,27 +33,6 @@ const hideAt = (list: HideSpot[], id: string, under: THREE.Vector3, from: THREE.
 
 export function buildBuildings(b: Builder, m: Mats, lights: LightPool, dynamic: THREE.Group, outlines: Record<string, Vec2[]>): BuildingRefs {
   const hideSpots: HideSpot[] = [];
-
-  // ------------------------------------------------------------------ arts block (locked)
-  buildShell(b, m, outlines.arts, {
-    height: 7.6,
-    fakeDoors: [
-      { at: [45.4, -29], width: 2.4 },
-      { at: [60.7, -57], width: 1.8 },
-      { at: [38.5, -70], width: 1.2 },
-    ],
-  });
-  P.wallPanel(
-    dynamic,
-    'v',
-    -29,
-    45.4,
-    1,
-    4.2,
-    0.6,
-    3.0,
-    new THREE.MeshStandardMaterial({ map: T.signTexture([{ text: 'ARTS & AUDITORIUM', size: 90, color: '#0f2d5c' }], '#f3eee2', 1024, 160), roughness: 0.5 }),
-  );
 
   // ------------------------------------------------------------------ dining hall + café
   const HALL_H = 5.2;
@@ -215,20 +196,21 @@ export function buildBuildings(b: Builder, m: Mats, lights: LightPool, dynamic: 
   b.box(-47.0, -46.8, -70.2, -68.2, 0.9, 2.4, m.metalPaint, { tile: 1 });
   hideAt(hideSpots, 'plantTank', W(-34, -73.0), W(-34, -69.8));
 
-  // ------------------------------------------------------------------ gate security booth
-  b.wall('v', 3, -167.5, -164.5, { height: 2.7, thickness: 0.15, inner: m.plaster, outer: m.stucco, outerSide: -1, openings: [{ at: -165.4, width: 0.9 }], tile: 2 });
-  b.wall('v', 6.5, -167.5, -164.5, { height: 2.7, thickness: 0.15, inner: m.plaster, outer: m.stucco, outerSide: 1, openings: [{ at: -166, width: 1.6, bottom: 1.0, top: 2.2, glass: true }], tile: 2 });
-  b.wall('u', -167.5, 3, 6.5, { height: 2.7, thickness: 0.15, inner: m.plaster, outer: m.stucco, outerSide: -1, openings: [{ at: 4.75, width: 2.2, bottom: 1.0, top: 2.2, glass: true }], tile: 2 });
-  b.wall('u', -164.5, 3, 6.5, { height: 2.7, thickness: 0.15, inner: m.plaster, outer: m.stucco, outerSide: 1, openings: [{ at: 4.75, width: 1.6, bottom: 1.0, top: 2.2, glass: true }], tile: 2 });
-  b.box(-167.8, -164.2, 2.7, 6.8, 2.7, 2.9, m.stuccoTint, { tile: 2 });
-  b.slab(-167.5, -164.5, 3, 6.5, 0.04, m.concrete, 2);
-  P.ceilingLights(b, lights, -167.3, -164.7, 3.2, 6.3, 2.68, 4, 3);
-  b.box(-167.3, -166.7, 3.4, 6.2, 0, 0.78, m.wood, { tile: 1, collide: true });
+  // ------------------------------------------------------------------ gate security booth (just inside the gate, east of the drive)
+  const Bo = BOOTH;
+  b.wall('v', Bo.v0, Bo.u0, Bo.u1, { height: 2.7, thickness: 0.15, inner: m.plaster, outer: m.stucco, outerSide: -1, openings: [{ at: Bo.u0 + 2.1, width: 0.9 }], tile: 2 });
+  b.wall('v', Bo.v1, Bo.u0, Bo.u1, { height: 2.7, thickness: 0.15, inner: m.plaster, outer: m.stucco, outerSide: 1, openings: [{ at: Bo.u0 + 1.5, width: 1.6, bottom: 1.0, top: 2.2, glass: true }], tile: 2 });
+  b.wall('u', Bo.u0, Bo.v0, Bo.v1, { height: 2.7, thickness: 0.15, inner: m.plaster, outer: m.stucco, outerSide: -1, openings: [{ at: Bo.v0 + 1.75, width: 2.2, bottom: 1.0, top: 2.2, glass: true }], tile: 2 });
+  b.wall('u', Bo.u1, Bo.v0, Bo.v1, { height: 2.7, thickness: 0.15, inner: m.plaster, outer: m.stucco, outerSide: 1, openings: [{ at: Bo.v0 + 1.75, width: 1.6, bottom: 1.0, top: 2.2, glass: true }], tile: 2 });
+  b.box(Bo.u0 - 0.3, Bo.u1 + 0.3, Bo.v0 - 0.3, Bo.v1 + 0.3, 2.7, 2.9, m.stuccoTint, { tile: 2 });
+  b.slab(Bo.u0, Bo.u1, Bo.v0, Bo.v1, 0.04, m.concrete, 2);
+  P.ceilingLights(b, lights, Bo.u0 + 0.2, Bo.u1 - 0.2, Bo.v0 + 0.2, Bo.v1 - 0.2, 2.68, 4, 3);
+  b.box(Bo.u0 + 0.2, Bo.u0 + 0.8, Bo.v0 + 0.4, Bo.v1 - 0.3, 0, 0.78, m.wood, { tile: 1, collide: true });
   const boothMonitor = new THREE.Mesh(
     new THREE.PlaneGeometry(0.5, 0.32),
     new THREE.MeshStandardMaterial({ color: 0x050505, emissive: 0x4a6a7a, emissiveIntensity: 1.2, roughness: 0.2 }),
   );
-  boothMonitor.position.copy(W(-167.0, 5.4, 1.05));
+  boothMonitor.position.copy(W(Bo.u0 + 0.5, Bo.v0 + 2.4, 1.05));
   boothMonitor.rotation.y = Math.PI / 2;
   dynamic.add(boothMonitor);
 
@@ -248,8 +230,8 @@ export function buildBuildings(b: Builder, m: Mats, lights: LightPool, dynamic: 
       plantPanel: W(-46.6, -69.2, 1.5),
       shaftTop: W((S.u0 + S.u1) / 2 + 0.3, S.v1 + 0.6),
       shaftBottom: W((S.u0 + S.u1) / 2 + 0.3, S.v0 + 0.4, -D),
-      booth: W(-166, 4.75),
-      boothDoor: W(-165.4, 2.2),
+      booth: W(Bo.u0 + 1.5, Bo.v0 + 1.75),
+      boothDoor: W(Bo.u0 + 2.1, Bo.v0 - 0.8),
     },
   };
 }

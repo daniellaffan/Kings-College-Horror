@@ -25,6 +25,9 @@ export interface ShellOptions {
   floor?: THREE.Material;
   /** Parapet and floor-band material (default: tinted stucco). */
   trim?: THREE.Material;
+  /** Outer skin above the ground storey (default: same as `outer`). */
+  upperOuter?: THREE.Material;
+  roof?: THREE.Material;
 }
 
 interface Edge {
@@ -92,7 +95,7 @@ export function buildShell(b: Builder, m: Mats, pts: Vec2[], o: ShellOptions) {
         y0: s * sh,
         thickness: 0.3,
         inner,
-        outer,
+        outer: s > 0 ? (o.upperOuter ?? outer) : outer,
         outerSide: e.outerSide,
         openings: ops,
         tile: 2.5,
@@ -116,7 +119,7 @@ export function buildShell(b: Builder, m: Mats, pts: Vec2[], o: ShellOptions) {
     if (e.axis === 'v') b.box(e.from - 0.15, e.to + 0.15, e.fixed + pOff - 0.12, e.fixed + pOff + 0.12, o.height, o.height + 0.9, trim, { tile: 2 });
     else b.box(e.fixed + pOff - 0.12, e.fixed + pOff + 0.12, e.from - 0.15, e.to + 0.15, o.height, o.height + 0.9, trim, { tile: 2 });
   }
-  b.add(polygonGeometry(pts, o.height, 3), m.roof, true);
+  b.add(polygonGeometry(pts, o.height, 3), o.roof ?? m.roof, true);
   if (o.enterable) {
     b.add(polygonGeometry(pts, 0.02, 2), o.floor ?? m.terrazzo, false);
     b.add(polygonGeometry(pts, Math.min(sh, o.height) - 0.4, 1.2, true), m.ceiling, false);

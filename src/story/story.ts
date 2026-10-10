@@ -30,8 +30,8 @@ const yawTo = (from: THREE.Vector3, to: THREE.Vector3) => Math.atan2(-(to.x - fr
 const bg = (p: Promise<unknown>) => void p.catch(() => undefined);
 
 const STUDENTS = ['studentA', 'studentB', 'studentC', 'studentD'];
-const WALKWAY = [W(-20, -11.4), W(-8, -12), W(4, -11.2), W(16, -12.1), W(28, -11.5)];
-const PENALTY_SPOT = W(-80, -53.5);
+const WALKWAY = [W(18, 55.1), W(30, 55.1), W(43.1, 57), W(56, 55.1), W(68, 55.1)];
+const PENALTY_SPOT = W(145, 135.5);
 const LAB_SEAT = W(57.4, 31.7);
 
 const NOTES: { id: string; at: THREE.Vector3; title: string; body: string }[] = [
@@ -179,7 +179,7 @@ export class Story {
     this.placeStudents();
     g.place('amara', W(44.5, 48.6), W(44.5, 60));
     if (haunted) g.place('wet', W(41.5, 50.5), W(41.5, 70)).setVariant('wet');
-    const c = W(20, 0);
+    const c = W(45, 50);
     const cam = g.r.camera;
     let a = 2.2;
     g.hooks.set('title', (dt) => {
@@ -484,7 +484,7 @@ export class Story {
     switch (b) {
       case 'a1':
       case 'a2':
-        return [A.spawn, -Math.PI / 2];
+        return [A.spawn, Math.PI];
       case 'a2b':
         return [W(39, 0.6), 0];
       case 'a3lib':
@@ -496,7 +496,7 @@ export class Story {
       case 'a3chase':
         return [A.flareStation, yawTo(A.flareStation, W(52.3, 33.2))];
       case 'a3pool':
-        return [A.poolGate, -Math.PI / 2];
+        return [A.poolGate, Math.PI];
       default:
         return [A.plantDoor, Math.PI];
     }
@@ -735,7 +735,7 @@ export class Story {
     });
 
     // Theo on the pitch.
-    g.place('theo', W(-83, -50), PENALTY_SPOT);
+    g.place('theo', W(142, 139), PENALTY_SPOT);
     this.npc('theo', 'Talk to Theo', () => this.theo(loop));
 
     // Mrs. Ferguson behind the library desk.
@@ -767,7 +767,7 @@ export class Story {
     });
 
     // The wet boy by the pool. In Act I he is gone when you get close.
-    const wet = g.place('wet', W(63.5, -18), g.anchors.poolCentre);
+    const wet = g.place('wet', W(38, -36.3), g.anchors.poolCentre);
     wet.setVariant('wet');
     if (loop) {
       wet.lookTarget = g.r.camera.position;
@@ -883,16 +883,16 @@ export class Story {
     const p = g.player;
     p.frozen = true;
     await g.ui.fade(1, 0.35);
-    this.placePlayer(W(-82.6, -53.5), -Math.PI / 2);
+    this.placePlayer(W(142.4, 135.5), -Math.PI / 2);
     this.ball.position.copy(PENALTY_SPOT).setY(0.11);
-    g.place('theo', W(-82, -49.5), PENALTY_SPOT);
+    g.place('theo', W(143, 139.5), PENALTY_SPOT);
     await g.ui.fade(0, 0.35);
     const aim = await g.choose('', 'Where are you putting it?', ['Bottom left', 'Top corner', 'Bottom right']);
     g.endTalk();
     p.frozen = true;
     await g.runner.wait(0.3);
     audio.footstep('grass', 2.4);
-    const to = [W(-68.4, -51.1, 0.3), W(-68.4, -55.4, 2.0), W(-68.4, -55.9, 0.3)][aim];
+    const to = [W(156.1, 137.9, 0.3), W(156.1, 133.6, 2.0), W(156.1, 133.1, 0.3)][aim];
     this.ballFlight = { from: this.ball.position.clone(), to, t: 0 };
     await g.runner.wait(0.7);
     this.ball.position.y = 0.11;
@@ -1354,11 +1354,11 @@ export class Story {
     const centre = g.anchors.poolCentre;
     g.hollowed.deactivate();
     p.frozen = true;
-    this.placePlayer(W(65.2, -12.0), -Math.PI / 2);
+    this.placePlayer(W(44, -38.6), Math.PI);
     p.lookAt(centre.clone().setY(0), 1.5);
     // Your first flare, dropped on the deck as you came through the gate: the only light here.
     const spare = this.flareLights.find((l) => !this.flares.some((f) => f.light === l));
-    const fp = W(67.1, -10.2);
+    const fp = W(45.8, -40.8);
     if (spare) this.lightFlare(spare, fp.x, fp.z);
     g.ui.subtitle(null, 'The pool is warm. It is the wrong colour.', 4);
     // With gore off the water churns and darkens instead of turning to blood.
@@ -1376,9 +1376,9 @@ export class Story {
     await R.wait(2);
 
     // The Hollowed comes for you along the deck.
-    const s = g.place('sands', W(61.5, -2.5), p.pos);
+    const s = g.place('sands', W(46, -30), p.pos);
     s.walkSpeed = 3.8;
-    s.moveTo(W(65.0, -10.4));
+    s.moveTo(W(44.6, -39.2));
     audio.stinger();
     g.hooks.set('watch', () => p.lookAt(s.root.position.clone().setY(s.root.position.y + 1.4), 3));
     await R.until(() => !s.path.length);
@@ -1400,7 +1400,7 @@ export class Story {
     p.addShake(0.8);
     await R.wait(0.5);
     const start = s.root.position.clone();
-    const lifted = W(70.8, -12.4, 2.6);
+    const lifted = W(43.6, -45.2, 2.6);
     g.hooks.set('watch', () => p.lookAt(hold, 2));
     await this.tween(2.2, (k) => {
       s.root.position.lerpVectors(start, lifted, k * k * (3 - 2 * k));
