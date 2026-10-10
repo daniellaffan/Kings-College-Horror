@@ -314,7 +314,7 @@ export function buildAcademic(b: Builder, m: Mats, lights: LightPool, dynamic: T
         b.add(g, m.hexBlue, false);
       }
   }
-  for (const [u, v] of [[53.9, 30.4], [53.9, 33.0], [53.9, 22.4], [53.9, 25.2]]) b.box(u - 0.18, u + 0.18, v - 0.18, v + 0.18, 0, 0.5, m.seatOrange, { tile: 1 });
+  for (const [u, v] of [[52.6, 30.4], [52.6, 33.0], [52.6, 22.4], [52.6, 25.2]]) b.box(u - 0.18, u + 0.18, v - 0.18, v + 0.18, 0, 0.5, m.seatOrange, { tile: 1 });
 
   // Biology Lab (Lab 2): benches, specimen shelf and a teaching skeleton.
   P.labBench(b, m, 55.6, 22.4, 3.4, 1.2);
