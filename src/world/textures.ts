@@ -467,3 +467,42 @@ export function waterNormalTexture(size = 256): THREE.CanvasTexture {
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   return t;
 }
+
+/** Vertical ribbed pink cladding (1 tile = 1 m wide). */
+export function ribbedCladdingTexture(): THREE.CanvasTexture {
+  const [c, g] = canvas(256, 256);
+  const ribs = 8;
+  for (let i = 0; i < ribs; i++) {
+    const x = (i * 256) / ribs;
+    const w = 256 / ribs;
+    const grad = g.createLinearGradient(x, 0, x + w, 0);
+    grad.addColorStop(0, '#e2aba0');
+    grad.addColorStop(0.5, '#efc2b6');
+    grad.addColorStop(1, '#c98f84');
+    g.fillStyle = grad;
+    g.fillRect(x, 0, w, 256);
+  }
+  const t = tex(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+
+/** Black-and-white Portuguese wave mosaic paving (1 tile = 2 m). */
+export function waveMosaicTexture(): THREE.CanvasTexture {
+  const [c, g] = canvas(256, 256);
+  g.fillStyle = '#e9e6df';
+  g.fillRect(0, 0, 256, 256);
+  g.fillStyle = '#26262a';
+  for (let row = 0; row < 8; row++) {
+    const y = row * 32;
+    g.beginPath();
+    g.moveTo(0, y + 16);
+    for (let x = 0; x <= 256; x += 4) g.lineTo(x, y + 16 + Math.sin(((x + (row % 2) * 64) / 256) * Math.PI * 4) * 9);
+    for (let x = 256; x >= 0; x -= 4) g.lineTo(x, y + 28 + Math.sin(((x + (row % 2) * 64) / 256) * Math.PI * 4) * 9);
+    g.closePath();
+    g.fill();
+  }
+  const t = tex(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}

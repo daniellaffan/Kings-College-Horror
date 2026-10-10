@@ -97,14 +97,14 @@ export function buildAcademic(b: Builder, m: Mats, lights: LightPool, dynamic: T
     const upper: Opening[] = [];
     const n = Math.floor((to - from - 1) / 3.4);
     for (let i = 0; i < n; i++) upper.push({ at: from + ((i + 0.5) * (to - from)) / n, width: 2, bottom: 0.9, top: 2.6, glass: true, dark: true });
-    b.wall(axis, fixed, from, to, { height: STOREY, y0: STOREY, thickness: 0.3, inner: m.plaster, outer: m.stucco, outerSide, openings: upper, tile: 2.5 });
+    b.wall(axis, fixed, from, to, { height: STOREY, y0: STOREY, thickness: 0.3, inner: m.plaster, outer: m.cladding, outerSide, openings: upper, tile: 1 });
     const off = outerSide * 0.18;
     const band = (y0: number, y1: number, mat: THREE.Material) =>
       axis === 'v'
         ? b.box(from - 0.2, to + 0.2, fixed + off - 0.08, fixed + off + 0.08, y0, y1, mat, { tile: 2 })
         : b.box(fixed + off - 0.08, fixed + off + 0.08, from - 0.2, to + 0.2, y0, y1, mat, { tile: 2 });
-    band(STOREY - 0.15, STOREY + 0.12, m.stuccoTint);
-    band(STOREY * 2, STOREY * 2 + 0.9, m.stuccoTint);
+    band(STOREY - 0.15, STOREY + 0.12, m.concrete);
+    band(STOREY * 2, STOREY * 2 + 0.9, m.stucco);
   };
 
   ext('v', 45.2, 26.5, 60.1, 1, [win(30.2, 4), win(37.7, 4), door(45.2, 2.4, 2.6), win(51.6, 3), win(57.6, 2.5)]);
@@ -151,10 +151,14 @@ export function buildAcademic(b: Builder, m: Mats, lights: LightPool, dynamic: T
   b.add(polygonGeometry(BODY, STOREY, 3, true), m.concrete, true);
   b.add(polygonGeometry(BODY, STOREY * 2, 3), m.roof, true);
 
-  // Porch canopy with columns.
-  b.box(33.7, 52.5, 45.2, 47.6, 3.4, 3.65, m.stuccoTint, { tile: 2 });
-  for (const u of [34.1, 40.2, 50.2, 52.1]) b.box(u - 0.15, u + 0.15, 47.1, 47.4, 0, 3.4, m.stucco, { tile: 1, collide: true });
-  b.slab(33.7, 52.5, 45.2, 47.6, 0.02, m.paving, 2);
+  // Entrance pergola: dark steel louvres on slim black columns over a wave-mosaic apron.
+  b.box(33.7, 52.5, 45.2, 47.6, 3.4, 3.5, m.darkMetal, { tile: 2 });
+  for (let u = 33.9; u <= 52.4; u += 0.9) b.box(u - 0.06, u + 0.06, 45.2, 47.6, 3.5, 3.8, m.darkMetal, { tile: 1 });
+  for (const u of [34.1, 40.2, 50.2, 52.1]) b.box(u - 0.1, u + 0.1, 47.2, 47.4, 0, 3.4, m.darkMetal, { tile: 1, collide: true });
+  b.slab(33.7, 52.5, 45.2, 47.6, 0.02, m.wavePaving, 2);
+  // Tall angular wall planes rising above the flat roof.
+  b.box(26.5, 33.5, 44.9, 45.5, STOREY * 2, STOREY * 2 + 2.6, m.stucco, { tile: 2 });
+  b.box(52.7, 60.1, 44.9, 45.5, STOREY * 2, STOREY * 2 + 1.8, m.stucco, { tile: 2 });
   const sign = new THREE.Mesh(
     new THREE.PlaneGeometry(9, 0.9),
     new THREE.MeshStandardMaterial({
@@ -392,7 +396,7 @@ export function buildAcademic(b: Builder, m: Mats, lights: LightPool, dynamic: T
   }
 
   // ------------------------------------------------------------ courtyard
-  b.slab(26.5, 48.8, 20.1, 37, 0.03, m.paving, 2.5);
+  b.slab(26.5, 48.8, 20.1, 37, 0.03, m.wavePaving, 2.5);
   for (const [u, v] of [
     [30, 24],
     [44.5, 33],

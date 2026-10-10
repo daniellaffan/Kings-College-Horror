@@ -17,8 +17,8 @@ export function makeMats() {
   const leafMat = (map: THREE.Texture) =>
     new THREE.MeshStandardMaterial({ map, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.8 });
   const mats = {
-    stucco: assets.material('stucco'),
-    stuccoTint: assets.material('stucco', { color: 0xf3ead8, noArm: true, roughness: 0.92 }),
+    stucco: assets.material('stucco', { color: 0xe9bfae }),
+    stuccoTint: assets.material('stucco', { color: 0xf1d4c6, noArm: true, roughness: 0.92 }),
     plaster: assets.material('plaster', { noArm: true, roughness: 0.9 }),
     corridorFloor: assets.material('corridorFloor', { roughness: 0.25, noArm: true, color: 0xe8e8e4 }),
     classFloor: assets.material('classFloor', { roughness: 0.45, noArm: true }),
@@ -28,10 +28,12 @@ export function makeMats() {
     grass: assets.material('grass', { color: 0x9cc47a }),
     turf: assets.material('grass', { color: 0x9fd77a, noArm: true, roughness: 0.85 }),
     track: assets.material('track'),
-    paving: assets.material('paving'),
+    paving: assets.material('paving', { color: 0xd8cfc4 }),
+    wavePaving: new THREE.MeshStandardMaterial({ map: T.waveMosaicTexture(), roughness: 0.7 }),
+    cladding: new THREE.MeshStandardMaterial({ map: T.ribbedCladdingTexture(), roughness: 0.8 }),
     poolTile: assets.material('poolTile', { roughness: 0.15, noArm: true }),
     rust: assets.material('rust'),
-    concrete: assets.material('concrete'),
+    concrete: assets.material('concrete', { color: 0xb4b4b2 }),
     forestFloor: assets.material('forestFloor'),
     wood: assets.material('wood', { roughness: 0.55, noArm: true }),
     hardCourt: assets.material('asphalt', { color: 0x3f6f9e, noArm: true, roughness: 0.7 }),
