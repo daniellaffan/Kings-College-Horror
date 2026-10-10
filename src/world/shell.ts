@@ -23,6 +23,8 @@ export interface ShellOptions {
   outer?: THREE.Material;
   inner?: THREE.Material;
   floor?: THREE.Material;
+  /** Parapet and floor-band material (default: tinted stucco). */
+  trim?: THREE.Material;
 }
 
 interface Edge {
@@ -73,6 +75,7 @@ export function buildShell(b: Builder, m: Mats, pts: Vec2[], o: ShellOptions) {
   const every = o.windowEvery ?? 3.6;
   const outer = o.outer ?? m.stucco;
   const inner = o.inner ?? m.plaster;
+  const trim = o.trim ?? m.stuccoTint;
   for (const e of edgesOf(pts)) {
     const doors = (o.doors ?? []).map((d) => ({ d, at: onEdge(e, d.at) })).filter((x) => x.at !== null);
     const openings: Opening[] = doors.map((x) => ({ at: x.at!, width: x.d.width, top: 2.4 }));
@@ -97,8 +100,8 @@ export function buildShell(b: Builder, m: Mats, pts: Vec2[], o: ShellOptions) {
       // Floor-line band between storeys, a common detail on Bahamian school blocks.
       if (s > 0) {
         const off = e.outerSide * 0.18;
-        if (e.axis === 'v') b.box(e.from - 0.2, e.to + 0.2, e.fixed + off - 0.06, e.fixed + off + 0.06, s * sh - 0.15, s * sh + 0.1, m.stuccoTint, { tile: 2 });
-        else b.box(e.fixed + off - 0.06, e.fixed + off + 0.06, e.from - 0.2, e.to + 0.2, s * sh - 0.15, s * sh + 0.1, m.stuccoTint, { tile: 2 });
+        if (e.axis === 'v') b.box(e.from - 0.2, e.to + 0.2, e.fixed + off - 0.06, e.fixed + off + 0.06, s * sh - 0.15, s * sh + 0.1, trim, { tile: 2 });
+        else b.box(e.fixed + off - 0.06, e.fixed + off + 0.06, e.from - 0.2, e.to + 0.2, s * sh - 0.15, s * sh + 0.1, trim, { tile: 2 });
       }
     }
     for (const fd of o.fakeDoors ?? []) {
@@ -110,8 +113,8 @@ export function buildShell(b: Builder, m: Mats, pts: Vec2[], o: ShellOptions) {
     }
     // Parapet.
     const pOff = e.outerSide * 0.1;
-    if (e.axis === 'v') b.box(e.from - 0.15, e.to + 0.15, e.fixed + pOff - 0.12, e.fixed + pOff + 0.12, o.height, o.height + 0.9, m.stuccoTint, { tile: 2 });
-    else b.box(e.fixed + pOff - 0.12, e.fixed + pOff + 0.12, e.from - 0.15, e.to + 0.15, o.height, o.height + 0.9, m.stuccoTint, { tile: 2 });
+    if (e.axis === 'v') b.box(e.from - 0.15, e.to + 0.15, e.fixed + pOff - 0.12, e.fixed + pOff + 0.12, o.height, o.height + 0.9, trim, { tile: 2 });
+    else b.box(e.fixed + pOff - 0.12, e.fixed + pOff + 0.12, e.from - 0.15, e.to + 0.15, o.height, o.height + 0.9, trim, { tile: 2 });
   }
   b.add(polygonGeometry(pts, o.height, 3), m.roof, true);
   if (o.enterable) {

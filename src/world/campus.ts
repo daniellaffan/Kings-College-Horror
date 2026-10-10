@@ -1,7 +1,9 @@
 // The campus exterior, generated from data/campus.json (© OpenStreetMap contributors, ODbL)
 // in the axis-aligned local frame: ground, roads and footways, the football pitch, five-a-side
 // cages, sprint track, tennis and padel courts, the 25 m pool, fences, gate, trees and lamps.
-// A few connecting paths and the covered walkway are invented to join the mapped footways.
+// A few connecting paths and the covered walkway are invented to join the mapped footways, as are
+// the details from the architect's aerial render: the front canopy, grey classroom pavilions,
+// parking inside the drop-off loop, mowing stripes and the groves along the fence.
 import * as THREE from 'three';
 import { W, polygonGeometry, ribbonGeometry, metricBox, type Builder } from './builder';
 import type { Box } from './collision';
@@ -12,12 +14,40 @@ import type { Mats } from './props';
 import { buildShell } from './shell';
 import * as T from './textures';
 import { makeWater, type Water } from './water';
-import { ACADEMIC_OUTLINE } from './academic';
+import { ACADEMIC_OUTLINE, COURTYARD_PATHS } from './academic';
 import { PLANT_SHAFT, buildNeighbours } from './buildings';
 
 /** Fenced campus perimeter (local frame). The gate is on the west side, facing Western Road. */
 export const PERIMETER = { u0: -170, u1: 130, v0: -95, v1: 65, gateV0: -20, gateV1: 2 };
 export const POOL = { u0: 68, u1: 88.7, v0: -25, v1: -0.8, depth: 2.0, water: -0.22 };
+/** Big flat entrance canopy over the walkway, front-centre of the campus. */
+export const FRONT_CANOPY = { u0: 0, u1: 20, v0: -22, v1: -2, h: 4.6 };
+/**
+ * Grey single-storey classroom pavilions scattered round the grounds: [u0, u1, v0, v1, door side].
+ * The north-west cluster lines a paved spine at u = -10; the rest sit along the fence.
+ */
+export const PAVILIONS: [number, number, number, number, 'u0' | 'u1' | 'v0' | 'v1'][] = [
+  [-30, -14, 4, 11, 'u1'],
+  [-6, 10, 4, 11, 'u0'],
+  [-30, -14, 22, 29, 'u1'],
+  [-6, 10, 22, 29, 'u0'],
+  [-30, -14, 40, 47, 'u1'],
+  [-6, 10, 40, 47, 'u0'],
+  [70, 84, 57.5, 63.5, 'v0'],
+  [89, 103, 57.8, 63.5, 'v0'],
+  [108, 120, 56.5, 63.5, 'v0'],
+  [121.5, 128.5, -52, -36, 'u0'],
+  [94, 108, -92, -85, 'v1'],
+];
+/** Parking inside the drop-off loop: rows of bays either side of a palm-lined footpath. */
+const PARKING = [
+  { v0: 4, v1: 30 },
+  { v0: -50, v1: -24 },
+];
+const PARKING_ROWS = [
+  [-52.3, -47.4],
+  [-44.6, -39.9],
+];
 
 export interface CampusRefs {
   water: Water;
@@ -215,11 +245,29 @@ export function buildCampus(b: Builder, m: Mats, lights: LightPool, dynamic: THR
     paved.push({ pts: p, w: 3 });
     b.add(ribbonGeometry(p, 3, 0.065, 2), m.wavePaving, false);
   }
-  // Canopy over the walkway.
+  // Canopy over the walkway, interrupted by the big entrance canopy.
+  const C = FRONT_CANOPY;
   for (let u = -22; u <= 30; u += 4.5) {
+    if (u > C.u0 - 1 && u < C.u1 + 1) continue;
     for (const v of [-13.5, -10]) b.box(u - 0.1, u + 0.1, v - 0.1, v + 0.1, 0, 2.9, m.steel, { tile: 1, collide: true });
   }
-  b.box(-22.5, 30.5, -14, -9.5, 2.9, 3.05, m.metalPaint, { tile: 2 });
+  b.box(-22.5, C.u0, -14, -9.5, 2.9, 3.05, m.metalPaint, { tile: 2 });
+  b.box(C.u1, 30.5, -14, -9.5, 2.9, 3.05, m.metalPaint, { tile: 2 });
+  // Front canopy: a deep flat concrete slab on round columns over a wave-mosaic plaza.
+  b.slab(C.u0, C.u1, C.v0, C.v1, 0.06, m.wavePaving, 2);
+  b.box(C.u0 - 0.6, C.u1 + 0.6, C.v0 - 0.6, C.v1 + 0.6, C.h, C.h + 0.8, m.greyTrim, { tile: 2 });
+  b.box(C.u0, C.u1, C.v0, C.v1, C.h - 0.02, C.h, m.ceiling, { tile: 2, cast: false });
+  for (const u of [C.u0 + 1.5, (C.u0 + C.u1) / 2, C.u1 - 1.5])
+    for (const v of [C.v0 + 1.5, C.v1 - 1.5]) {
+      b.addTransformed(new THREE.CylinderGeometry(0.28, 0.28, C.h, 16), m.whiteGloss, new THREE.Matrix4().makeTranslation(u, C.h / 2, -v));
+      b.world.add({ minX: u - 0.3, maxX: u + 0.3, minZ: -v - 0.3, maxZ: -v + 0.3, height: C.h });
+    }
+  P.ceilingLights(b, lights, C.u0 + 1, C.u1 - 1, C.v0 + 1, C.v1 - 1, C.h - 0.03, 6, 4);
+  for (const [u, v] of [[C.u0 + 4, C.v0 + 4], [C.u1 - 4, C.v1 - 4]]) {
+    b.box(u - 1.1, u + 1.1, v - 1.1, v + 1.1, 0, 0.45, m.concrete, { tile: 1, collide: true });
+    b.slab(u - 1, u + 1, v - 1, v + 1, 0.44, m.forestFloor, 1);
+    P.shrub(b, m, u, v, 0.9);
+  }
 
   // Kerbs + white edge lines on the drop-off loop.
   const loop = byId(1228972436);
@@ -231,6 +279,12 @@ export function buildCampus(b: Builder, m: Mats, lights: LightPool, dynamic: THR
   {
     const o = orient(byId(1492740458));
     b.add(polygonGeometry(quad(o, -o.L / 2 - 3, o.L / 2 + 3, -o.Wd / 2 - 3, o.Wd / 2 + 3), 0.03, 3), m.turf, false);
+    // Mowing stripes across the pitch, as seen from the air.
+    const bands = Math.round(o.L / 6);
+    for (let k = 0; k < bands; k += 2) {
+      const x0 = -o.L / 2 + (k * o.L) / bands;
+      b.add(polygonGeometry(quad(o, x0, x0 + o.L / bands, -o.Wd / 2, o.Wd / 2), 0.045, 3), m.turfStripe, false);
+    }
     const [hx, hy] = [o.L / 2 - 1, o.Wd / 2 - 1];
     paint.rect(o, -hx, hx, -hy, hy, 0.12);
     paint.seg(o, 0, -hy, 0, hy, 0.12);
@@ -425,6 +479,56 @@ export function buildCampus(b: Builder, m: Mats, lights: LightPool, dynamic: THR
   // ---------------------------------------------------------------- small campus buildings (stands, kiosk)
   for (const id of [1492740429, 1492740430, 1492740431]) buildShell(b, m, byId(id), { height: 3, windowEvery: 60 });
 
+  // Grey classroom pavilions: panel walls, dark window bands, a pale overhanging roof and a shut door.
+  for (const [u0, u1, v0, v1, side] of PAVILIONS) {
+    const mid: Vec2 = side === 'u0' ? [u0, (v0 + v1) / 2] : side === 'u1' ? [u1, (v0 + v1) / 2] : [(u0 + u1) / 2, side === 'v0' ? v0 : v1];
+    buildShell(b, m, rectPts(u0, u1, v0, v1), { height: 3.4, windowEvery: 3.2, outer: m.greyPanel, inner: m.greyPanel, trim: m.greyTrim, fakeDoors: [{ at: mid, width: 1.4 }] });
+    b.box(u0 - 0.9, u1 + 0.9, v0 - 0.9, v1 + 0.9, 3.4, 3.65, m.greyTrim, { tile: 2 });
+    b.slab(u0 - 0.9, u1 + 0.9, v0 - 0.9, v1 + 0.9, 0.04, m.concrete, 2);
+  }
+  // Paved spine through the north-west pavilion cluster, joining the walkway.
+  const spine: Vec2[] = [
+    [-10, -10.2],
+    [-10, 52],
+  ];
+  roads.push(spine);
+  paved.push({ pts: spine, w: 3 });
+  b.add(ribbonGeometry(spine, 3, 0.066, 2), m.wavePaving, false);
+  for (const v of [7.5, 25.5, 43.5]) {
+    b.slab(-14, -11.5, v - 1, v + 1, 0.066, m.wavePaving, 2);
+    b.slab(-8.5, -6, v - 1, v + 1, 0.066, m.wavePaving, 2);
+  }
+
+  // ---------------------------------------------------------------- parking inside the drop-off loop
+  const carMats = [0xe6e6e6, 0x1d1f22, 0x8a1c1c, 0x2b4a7a, 0xb8bcc2, 0xd9d0b8].map((color) => new THREE.MeshStandardMaterial({ color, roughness: 0.3, metalness: 0.5 }));
+  for (const [k, pk] of PARKING.entries()) {
+    for (const [u0, u1] of PARKING_ROWS) {
+      b.slab(u0, u1, pk.v0, pk.v1, 0.05, m.asphalt, 6);
+      for (let v = pk.v0; v <= pk.v1 + 0.01; v += 2.6) b.slab(u0 + 0.4, u1 - 0.4, v - 0.05, v + 0.05, 0.058, m.line, 1);
+      // A few parked cars, nose to the footpath.
+      for (let i = 0, v = pk.v0 + 1.3; v < pk.v1; i++, v += 2.6) {
+        if ((i * 7 + k * 3 + (u0 < -50 ? 1 : 0)) % 5 > 1) continue;
+        const body = carMats[(i + k * 2) % carMats.length];
+        const [cu0, cu1] = u0 < -50 ? [u1 - 4.5, u1 - 0.3] : [u0 + 0.3, u0 + 4.5];
+        b.box(cu0, cu1, v - 0.9, v + 0.9, 0.3, 1.0, body, { tile: 1, collide: true });
+        b.box(cu0 + 1, cu1 - 1.2, v - 0.8, v + 0.8, 1.0, 1.45, m.blackTop, { tile: 1 });
+        for (const wu of [cu0 + 0.8, cu1 - 0.8]) for (const wv of [v - 0.85, v + 0.85]) b.box(wu - 0.33, wu + 0.33, wv - 0.12, wv + 0.12, 0, 0.62, m.rubber, { tile: 1 });
+      }
+    }
+    // Palm-lined footpath down the middle.
+    b.slab(-46.6, -45.4, pk.v0, pk.v1, 0.06, m.wavePaving, 2);
+    for (let v = pk.v0 + 2; v < pk.v1; v += 6) {
+      P.palm(b, m, -47, v, 8 + ((v * 7) % 3));
+      P.palm(b, m, -45, v + 3, 8 + ((v * 5) % 3));
+    }
+  }
+
+  // ---------------------------------------------------------------- pool loungers on the north deck
+  for (let u = 70; u < 87; u += 2.4) {
+    b.box(u - 0.35, u + 0.35, 0.2, 2.1, 0.25, 0.38, m.whiteGloss, { tile: 1, collide: true });
+    b.box(u - 0.35, u + 0.35, 1.7, 2.1, 0.38, 0.85, m.whiteGloss, { tile: 1 });
+  }
+
   // ---------------------------------------------------------------- perimeter fence + gate
   polylineFence(b, m, [
     [Pm.u0, Pm.gateV1 + 0.6],
@@ -504,13 +608,14 @@ export function buildCampus(b: Builder, m: Mats, lights: LightPool, dynamic: THR
         const t = s / len;
         const p: Vec2 = [a[0] + (c[0] - a[0]) * t + nx * 3.6, a[1] + (c[1] - a[1]) * t + ny * 3.6];
         if (p[0] < Pm.u0 + 2) continue;
+        if (PARKING.some((pk) => p[1] > pk.v0 - 1 && p[1] < pk.v1 + 1 && p[0] > PARKING_ROWS[0][0] - 0.5 && p[0] < PARKING_ROWS[1][1] + 0.5)) continue;
         if (roads.some((r) => r !== loop && distToPolyline(p, r) < 1.6)) continue;
         P.streetLamp(b, m, lights, p[0], p[1]);
       }
     }
     for (const [u, v] of [
       [-10, -15],
-      [12, -15],
+      [22, -24],
       [24.5, 20],
       [24.5, 40],
       [64, -30],
@@ -541,9 +646,6 @@ export function buildCampus(b: Builder, m: Mats, lights: LightPool, dynamic: THR
     [64, -50],
     [-30, -60],
     [-20, -40],
-    [-46, 10],
-    [-46, -30],
-    [-44, 25],
     [119, 10],
     [119, -25],
   ]) P.palm(b, m, u, v);
@@ -581,6 +683,42 @@ export function buildCampus(b: Builder, m: Mats, lights: LightPool, dynamic: THR
     P.shrub(b, m, cu, cv, 0.8);
   }
 
+  // Palms round the lawn between the Academic Block and the arts block.
+  for (const [u, v] of [
+    [36, -6],
+    [57, -6],
+    [36, -20],
+    [57, -20],
+  ]) P.palm(b, m, u, v);
+
+  // Dense groves inside the fence: down the west side and along the south-east corner.
+  {
+    const keepOut = [
+      ...data.features.filter((f) => f.kind === 'building' || f.kind === 'pitch' || f.kind === 'pool').map((f) => bounds(local(f.points))).map((bb) => [bb.minX - 7, bb.maxX + 7, bb.minY - 7, bb.maxY + 7]),
+      ...PAVILIONS.map(([u0, u1, v0, v1]) => [u0 - 3, u1 + 3, v0 - 3, v1 + 3]),
+      [Pm.u0, Pm.u0 + 10, Pm.gateV0 - 4, Pm.gateV1 + 14],
+    ];
+    const tracks = data.features.filter((f) => f.kind === 'track').map((f) => local(f.points));
+    const spots: [number, number][] = [];
+    for (const [u0, u1, v0, v1, n] of [
+      [Pm.u0 + 2, Pm.u0 + 14, Pm.v0 + 2, Pm.v1 - 2, 70],
+      [Pm.u0 + 2, -60, Pm.v0 + 2, -80, 60],
+      [58, Pm.u1 - 2, Pm.v0 + 2, -77, 70],
+    ]) {
+      for (let i = 0, got = 0; i < n * 6 && got < n; i++) {
+        const p: Vec2 = [u0 + T.rand() * (u1 - u0), v0 + T.rand() * (v1 - v0)];
+        if (keepOut.some(([a, c, d, e]) => p[0] > a && p[0] < c && p[1] > d && p[1] < e)) continue;
+        if (roads.some((r) => distToPolyline(p, r) < 6) || tracks.some((r) => distToPolyline(p, r) < 7)) continue;
+        if (spots.some((q) => Math.hypot(q[0] - p[0], q[1] - p[1]) < 3)) continue;
+        spots.push(p);
+        got++;
+      }
+    }
+    P.pineForest(dynamic, m, spots);
+    for (const [u, v] of spots) b.world.add({ minX: u - 0.25, maxX: u + 0.25, minZ: -v - 0.25, maxZ: -v + 0.25, height: 6 });
+    for (const [u, v] of spots.filter((_, i) => i % 3 === 0)) P.shrub(b, m, u + 1.6, v - 1.2, 0.8 + T.rand() * 0.6);
+  }
+
   // Caribbean pine forest round the fence, inside the mapped forest (way 815703975).
   {
     const forest = local(data.features.find((f) => f.kind === 'forest')!.points);
@@ -604,7 +742,10 @@ export function buildCampus(b: Builder, m: Mats, lights: LightPool, dynamic: THR
     [64.5, 92.5, -28.5, 2.5],
     [95.4, 107.9, 3.7, 10.5],
     [33.7, 52.5, 45.2, 47.6],
-    [26.5, 48.8, 20.1, 37],
+    ...COURTYARD_PATHS,
+    [FRONT_CANOPY.u0, FRONT_CANOPY.u1, FRONT_CANOPY.v0, FRONT_CANOPY.v1],
+    ...PARKING.map((pk) => [PARKING_ROWS[0][0], PARKING_ROWS[1][1], pk.v0, pk.v1]),
+    ...PAVILIONS.map(([u0, u1, v0, v1]) => [u0 - 0.9, u1 + 0.9, v0 - 0.9, v1 + 0.9]),
     [70, 120, 15, 50],
     [70, 112, -65, -41],
   ];

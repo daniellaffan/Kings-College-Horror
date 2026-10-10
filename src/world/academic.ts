@@ -31,6 +31,12 @@ export const ACADEMIC_OUTLINE: Vec2[] = [
   [52.5, 47.6],
 ];
 
+/** Paved paths across the courtyard lawn: [u0, u1, v0, v1]. */
+export const COURTYARD_PATHS: [number, number, number, number][] = [
+  [26.5, 48.8, 26.4, 28.8],
+  [36.8, 39.2, 20.1, 37],
+];
+
 const BODY: Vec2[] = [
   [26.5, 45.2],
   [60.1, 45.2],
@@ -409,7 +415,9 @@ export function buildAcademic(b: Builder, m: Mats, lights: LightPool, dynamic: T
   }
 
   // ------------------------------------------------------------ courtyard
-  b.slab(26.5, 48.8, 20.1, 37, 0.03, m.wavePaving, 2.5);
+  // Lawn quartered by two wave-mosaic paths (COURTYARD_PATHS), one from the corridor door.
+  for (const [u0, u1, v0, v1] of COURTYARD_PATHS) b.slab(u0, u1, v0, v1, 0.03, m.wavePaving, 2.5);
+  for (const [u0, u1, v0, v1] of [[26.5, 36.8, 36.4, 37], [39.2, 48.8, 36.4, 37]]) b.box(u0, u1, v0, v1, 0, 0.7, m.hedge, { tile: 1, collide: true });
   for (const [u, v] of [
     [30, 24],
     [44.5, 33],
