@@ -156,7 +156,7 @@ const ROAD_STYLE: Record<string, { w: number; y: number; mat: keyof Mats; tile: 
   residential: { w: 6.5, y: 0.05, mat: 'asphalt', tile: 6 },
   service: { w: 5.5, y: 0.055, mat: 'asphalt', tile: 6 },
   track: { w: 3.2, y: 0.04, mat: 'forestFloor', tile: 3 },
-  footway: { w: 2.2, y: 0.065, mat: 'paving', tile: 2 },
+  footway: { w: 2.2, y: 0.065, mat: 'wavePaving', tile: 2 },
 };
 
 export function buildCampus(b: Builder, m: Mats, lights: LightPool, dynamic: THREE.Group, data: CampusData): CampusRefs {
@@ -213,7 +213,7 @@ export function buildCampus(b: Builder, m: Mats, lights: LightPool, dynamic: THR
   for (const p of [walkway, porchPath]) {
     roads.push(p);
     paved.push({ pts: p, w: 3 });
-    b.add(ribbonGeometry(p, 3, 0.065, 2), m.paving, false);
+    b.add(ribbonGeometry(p, 3, 0.065, 2), m.wavePaving, false);
   }
   // Canopy over the walkway.
   for (let u = -22; u <= 30; u += 4.5) {

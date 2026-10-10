@@ -144,7 +144,7 @@ export class Game {
 
     this.atmo = new Atmosphere(this.r);
     const m = this.mats;
-    this.atmo.addWet(m.stucco, m.stuccoTint, m.asphalt, m.paving, m.concrete, m.grass, m.turf, m.track, m.hardCourt, m.padelCourt, m.forestFloor, m.roof);
+    this.atmo.addWet(m.stucco, m.stuccoTint, m.asphalt, m.paving, m.wavePaving, m.cladding, m.concrete, m.grass, m.turf, m.track, m.hardCourt, m.padelCourt, m.forestFloor, m.roof);
     this.atmo.reduceFlashes = settings.reduceFlashes;
 
     this.player = new Player(this.r.camera, this.input, this.world);
