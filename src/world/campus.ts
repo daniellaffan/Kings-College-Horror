@@ -354,6 +354,12 @@ export function buildCampus(b: Builder, m: Mats, lights: LightPool, dynamic: THR
     b.slab(u - 0.5, u + 0.5, Po.v0 + 2, Po.v0 + 2.26, -Po.depth + 0.005, stripe, 1);
     b.slab(u - 0.5, u + 0.5, Po.v1 - 2.26, Po.v1 - 2, -Po.depth + 0.005, stripe, 1);
   }
+  // Red and white lane ropes.
+  for (let k = 0; k <= lanes; k++) {
+    const u = Po.u0 + (k * (Po.u1 - Po.u0)) / lanes;
+    for (let v = Po.v0, i = 0; v < Po.v1 - 0.01; v += 1, i++)
+      b.box(u - 0.04, u + 0.04, v, Math.min(v + 1, Po.v1), Po.water - 0.04, Po.water + 0.04, i % 2 ? m.whiteGloss : m.ropeRed, { tile: 1, cast: false });
+  }
   const coping = m.whiteGloss;
   b.box(Po.u0 - 0.45, Po.u1 + 0.45, Po.v0 - 0.45, Po.v0, -0.02, 0.06, coping, { tile: 1, cast: false });
   b.box(Po.u0 - 0.45, Po.u1 + 0.45, Po.v1, Po.v1 + 0.45, -0.02, 0.06, coping, { tile: 1, cast: false });
@@ -557,6 +563,23 @@ export function buildCampus(b: Builder, m: Mats, lights: LightPool, dynamic: THR
     [-30, -62.5, 1],
     [-40, -63, 0.9],
   ]) P.shrub(b, m, u, v, r);
+
+  // Clipped hedges flanking the school entrance.
+  for (const [u0, u1] of [[27, 33], [53.5, 59.5]]) b.box(u0, u1, 48.6, 49.4, 0, 0.85, m.hedge, { tile: 1, collide: true });
+  // Concrete pavilions on the front lawn: flat canopy with a square roof opening over a planter.
+  for (const u of [37, 49]) {
+    const v0 = 52, v1 = 58, uu0 = u - 3, uu1 = u + 3;
+    b.slab(uu0 - 0.5, uu1 + 0.5, v0 - 0.5, v1 + 0.5, 0.05, m.wavePaving, 2);
+    for (const [cu, cv] of [[uu0, v0], [uu1, v0], [uu0, v1], [uu1, v1]]) b.box(cu - 0.2, cu + 0.2, cv - 0.2, cv + 0.2, 0, 3.4, m.concrete, { tile: 1, collide: true });
+    // Canopy as four slabs around a 2 m square opening.
+    const cu = u, cv = (v0 + v1) / 2;
+    b.box(uu0 - 0.4, uu1 + 0.4, v0 - 0.4, cv - 1, 3.4, 3.7, m.concrete, { tile: 2 });
+    b.box(uu0 - 0.4, uu1 + 0.4, cv + 1, v1 + 0.4, 3.4, 3.7, m.concrete, { tile: 2 });
+    b.box(uu0 - 0.4, cu - 1, cv - 1, cv + 1, 3.4, 3.7, m.concrete, { tile: 2 });
+    b.box(cu + 1, uu1 + 0.4, cv - 1, cv + 1, 3.4, 3.7, m.concrete, { tile: 2 });
+    b.box(cu - 1.1, cu + 1.1, cv - 1.1, cv + 1.1, 0, 0.45, m.concrete, { tile: 1, collide: true });
+    P.shrub(b, m, cu, cv, 0.8);
+  }
 
   // Caribbean pine forest round the fence, inside the mapped forest (way 815703975).
   {

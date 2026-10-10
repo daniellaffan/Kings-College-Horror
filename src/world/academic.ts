@@ -303,6 +303,19 @@ export function buildAcademic(b: Builder, m: Mats, lights: LightPool, dynamic: T
     dynamic.add(bottle);
   }
 
+  // Hexagon theme for both science labs: honeycomb ceiling tiles, blue wall band, orange stools.
+  for (const [v0, v1] of [[28.4, 37], [19.7, 28.4]]) {
+    b.box(59.9, 59.95, v0 + 0.1, v1 - 0.1, 2.25, 2.9, m.hexBlue, { tile: 1, cast: false });
+    const r = 0.45;
+    for (let row = 0, v = v0 + 0.7; v < v1 - 0.5; row++, v += r * 1.5)
+      for (let u = 52.2 + (row % 2) * r * 0.87; u < 59.6; u += r * 1.74) {
+        const g = new THREE.CylinderGeometry(r * 0.92, r * 0.92, 0.03, 6);
+        g.translate(u, CEILING - 0.02, -v);
+        b.add(g, m.hexBlue, false);
+      }
+  }
+  for (const [u, v] of [[53.9, 30.4], [53.9, 33.0], [53.9, 22.4], [53.9, 25.2]]) b.box(u - 0.18, u + 0.18, v - 0.18, v + 0.18, 0, 0.5, m.seatOrange, { tile: 1 });
+
   // Biology Lab (Lab 2): benches, specimen shelf and a teaching skeleton.
   P.labBench(b, m, 55.6, 22.4, 3.4, 1.2);
   P.labBench(b, m, 55.6, 25.2, 3.4, 1.2);
